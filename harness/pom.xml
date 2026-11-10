@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.apache.xalan</groupId>
+    <artifactId>xalan-test-parent</artifactId>
+    <version>${revision}</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>xalan-test</artifactId>
+  <name>Xalan-Java Test Harness</name>
+  <description>API test harness for the Xalan-Java 2.7.3 suite.</description>
+  <url>https://github.com/martinhickson/xalan-test</url>
+
+  <scm>
+    <connection>scm:git:https://github.com/martinhickson/xalan-test.git</connection>
+    <developerConnection>scm:git:https://github.com/martinhickson/xalan-test.git</developerConnection>
+    <url>https://github.com/martinhickson/xalan-test</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <dependencies>
+    <dependency>
+      <groupId>xalan</groupId>
+      <artifactId>xalan</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>xalan</groupId>
+      <artifactId>serializer</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xercesImpl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>xml-apis</groupId>
+      <artifactId>xml-apis</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.jtidy</groupId>
+      <artifactId>jtidy</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <sourceDirectory>${project.basedir}/../java/src</sourceDirectory>
+    <resources>
+      <resource>
+        <directory>${project.basedir}/../java/src</directory>
+        <includes>
+          <include>**/*.properties</include>
+          <include>org/apache/qetest/xslwrapper/XTWrapper.class</include>
+        </includes>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>org/apache/qetest/xsl/XSLTestAntTask.java</exclude>
+            <exclude>org/apache/qetest/xsl/XSLApiTestsResultTask.java</exclude>
+            <exclude>org/apache/qetest/xsl/XsltcTestsTask.java</exclude>
+            <exclude>org/apache/qetest/xslwrapper/XTWrapper.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.gmavenplus</groupId>
+        <artifactId>gmavenplus-plugin</artifactId>
+        <version>2.1.0</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+            <version>3.0.21</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <id>prepare-api-tests</id>
+            <phase>generate-test-resources</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <scripts>
+                <script><![CDATA[
+xalanTestCommand = 'prepare-api'
+evaluate(new File(project.basedir, '../build-support/api-tests.groovy'))
+]]></script>
+              </scripts>
+            </configuration>
+          </execution>
+          <execution>
+            <id>verify-api-tests</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <scripts>
+                <script><![CDATA[
+xalanTestCommand = 'verify-api'
+evaluate(new File(project.basedir, '../build-support/api-tests.groovy'))
+]]></script>
+              </scripts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>api-tests</id>
+            <phase>test</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>${bellsoft.jdk8.home}/bin/java</executable>
+              <workingDirectory>${project.basedir}/..</workingDirectory>
+              <arguments>
+                <argument>-classpath</argument>
+                <classpath/>
+                <argument>org.apache.qetest.xsl.XSLTestHarness</argument>
+                <argument>-load</argument>
+                <argument>${project.build.directory}/api-tests.properties</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <version>1.6.0</version>
+        <configuration>
+          <updatePomFile>true</updatePomFile>
+          <flattenMode>ossrh</flattenMode>
+        </configuration>
+        <executions>
+          <execution>
+            <id>flatten</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>flatten</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>flatten-clean</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

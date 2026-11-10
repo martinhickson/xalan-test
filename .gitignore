@@ -1,0 +1,3 @@
+/harness/target/
+.flattened-pom.xml
+/results-api/

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.apache.xalan</groupId>
+  <artifactId>xalan-test-parent</artifactId>
+  <version>${revision}</version>
+  <packaging>pom</packaging>
+
+  <name>Xalan-Java Tests</name>
+  <description>Maven build of the Xalan-Java 2.7.3 test suite.</description>
+  <url>https://github.com/martinhickson/xalan-test</url>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:https://github.com/martinhickson/xalan-test.git</connection>
+    <developerConnection>scm:git:https://github.com/martinhickson/xalan-test.git</developerConnection>
+    <url>https://github.com/martinhickson/xalan-test</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <modules>
+    <module>harness</module>
+  </modules>
+
+  <properties>
+    <revision>2.7.3</revision>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.deploy.skip>true</maven.deploy.skip>
+    <bellsoft.jdk8.home>${env.BELLSOFT_JDK8_HOME}</bellsoft.jdk8.home>
+    <xalan.version>2.7.3</xalan.version>
+    <xerces.version>2.12.2</xerces.version>
+    <xml-apis.version>1.4.01</xml-apis.version>
+    <jtidy.version>r938</jtidy.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>xalan</groupId>
+        <artifactId>xalan</artifactId>
+        <version>${xalan.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>xalan</groupId>
+        <artifactId>serializer</artifactId>
+        <version>${xalan.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>xerces</groupId>
+        <artifactId>xercesImpl</artifactId>
+        <version>${xerces.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>xml-apis</groupId>
+        <artifactId>xml-apis</artifactId>
+        <version>${xml-apis.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.sf.jtidy</groupId>
+        <artifactId>jtidy</artifactId>
+        <version>${jtidy.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.5.0</version>
+        <executions>
+          <execution>
+            <id>bellsoft-jdk8</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireEnvironmentVariable>
+                  <variableName>BELLSOFT_JDK8_HOME</variableName>
+                  <message>Set BELLSOFT_JDK8_HOME to a BellSoft Liberica JDK 8 Standard installation.</message>
+                </requireEnvironmentVariable>
+                <requireFilesExist>
+                  <files>
+                    <file>${env.BELLSOFT_JDK8_HOME}/bin/javac</file>
+                  </files>
+                </requireFilesExist>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <fork>true</fork>
+          <executable>${bellsoft.jdk8.home}/bin/javac</executable>
+          <source>1.8</source>
+          <target>1.8</target>
+          <encoding>UTF-8</encoding>
+          <compilerArgs>
+            <arg>-nowarn</arg>
+          </compilerArgs>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
